@@ -1,7 +1,7 @@
 package com.rotainteligente.datastructures;
 
-import com.rotainteligente.model.CongestionLevel;
-import com.rotainteligente.model.Street;
+import com.rotainteligente.model.CongestionLevel; // Corrected import path
+import com.rotainteligente.model.Street;         // Corrected import path
 
 import java.util.HashMap;
 import java.util.Map;

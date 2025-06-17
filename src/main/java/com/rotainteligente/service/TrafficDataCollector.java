@@ -1,8 +1,8 @@
-package com.rotainteligente.core;
+package com.rotainteligente.service;
 
-import com.rotainteligente.datastructures.StreetStatusTable;
-import com.rotainteligente.model.CongestionLevel;
-import com.rotainteligente.model.Street;
+import com.rotainteligente.datastructures.StreetStatusTable; // Corrected import
+import com.rotainteligente.model.CongestionLevel;         // Corrected import
+import com.rotainteligente.model.Street;                  // Corrected import
 
 public class TrafficDataCollector {
 
@@ -39,10 +39,5 @@ public class TrafficDataCollector {
         boolean updated = table.updateStreetStatus("Rua X", CongestionLevel.LOW, false, false);
         System.out.println("Update status for Rua X: " + (updated ? "Success" : "Failed (Not Found)"));
     }
-
-    // Example main method to test the collector (optional, can be removed later)
-    public static void main(String[] args) {
-        StreetStatusTable statusTable = new StreetStatusTable();
-        simulateDataAndUpdateTable(statusTable);
-    }
+    // Main method removed
 }

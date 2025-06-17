@@ -1,5 +1,7 @@
 package com.rotainteligente.model;
 
+// CongestionLevel is in the same package, no explicit import needed.
+
 public class Street {
     private String streetName;
     private CongestionLevel congestionLevel;

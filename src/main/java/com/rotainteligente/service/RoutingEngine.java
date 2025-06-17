@@ -1,10 +1,10 @@
-package com.rotainteligente.core;
+package com.rotainteligente.service;
 
-import com.rotainteligente.datastructures.MinHeapPriorityQueue;
-import com.rotainteligente.datastructures.StreetStatusTable;
-import com.rotainteligente.model.PathNode;
-import com.rotainteligente.model.Street;
-import com.rotainteligente.model.CongestionLevel;
+import com.rotainteligente.datastructures.MinHeapPriorityQueue; // Corrected import
+import com.rotainteligente.datastructures.StreetStatusTable;   // Corrected import
+import com.rotainteligente.model.PathNode;                     // Corrected import
+import com.rotainteligente.model.Street;                       // Corrected import
+import com.rotainteligente.model.CongestionLevel;              // Corrected import
 
 import java.util.*;
 
@@ -59,14 +59,18 @@ public class RoutingEngine {
         }
         distances.put(startStreetName, 0.0);
 
-        priorityQueue.addPath(new PathNode(startStreetName, 0.0));
+        priorityQueue.addPath(new PathNode(startStreetName, 0.0)); // PathNode constructor with (startNode, initialWeight)
 
         while (!priorityQueue.isEmpty()) {
             PathNode currentPath = priorityQueue.getNextBestPath();
             String currentStreetName = currentPath.getCurrentNodeIdentifier();
 
             // If we've already processed this node with a shorter path, skip.
-            if (visitedNodes.contains(currentStreetName) && currentPath.getTotalWeight() > distances.get(currentStreetName)) {
+            // Check distances.get(currentStreetName) instead of currentPath.getTotalWeight() > distances.get(currentStreetName)
+            // because currentPath.getTotalWeight() IS distances.get(currentStreetName) if it's the first time we extract this node.
+            // The check is more about whether we've already *visited* (i.e. explored from) this node.
+            // The visitedNodes set handles this correctly. If already visited, skip.
+            if (visitedNodes.contains(currentStreetName)) {
                 continue;
             }
             visitedNodes.add(currentStreetName);
@@ -78,24 +82,25 @@ public class RoutingEngine {
             }
 
             Street currentStreetObject = statusTable.getStreetStatus(currentStreetName);
-            if (currentStreetObject == null || currentStreetObject.isBlocked()) {
-                continue; // Cannot proceed from a blocked or non-existent street
+            // currentStreetObject should not be null if it's from priorityQueue and distances map,
+            // but a check for isBlocked is essential.
+            if (currentStreetObject == null || (currentStreetObject.isBlocked() && !currentStreetName.equals(endStreetName)) ) {
+                continue; // Cannot proceed from a blocked or non-existent street unless it's the destination
             }
 
             // Explore neighbors
-            List<String> neighbors = MapData.getConnectedStreets(currentStreetName);
+            List<String> neighbors = MapData.getConnectedStreets(currentStreetName); // MapData is now in the same package
             for (String neighborName : neighbors) {
                 Street neighborStreet = statusTable.getStreetStatus(neighborName);
                 if (neighborStreet == null) continue; // Neighbor not in status table
 
                 double weightToNeighbor = calculateStreetWeight(neighborStreet);
-                if (weightToNeighbor == BLOCKED_STREET_WEIGHT && !neighborName.equals(endStreetName)) { // Allow reaching a blocked destination if it's the target
-                    continue;
-                }
 
                 // If the destination itself is blocked, its weight is calculated, but we can still "reach" it.
-                // For other streets, if blocked, we can't use them as intermediate steps.
-                if(neighborStreet.isBlocked() && !neighborName.equals(endStreetName)) continue;
+                // For other streets, if blocked (and weight is INF), we can't use them as intermediate steps.
+                if (weightToNeighbor == BLOCKED_STREET_WEIGHT && !neighborName.equals(endStreetName)) {
+                    continue;
+                }
 
 
                 double newDistToNeighbor = distances.get(currentStreetName) + weightToNeighbor;
@@ -126,15 +131,15 @@ public class RoutingEngine {
             }
         }
          // If the first element is not null and is indeed the start of a path from the start node.
-        if (!path.isEmpty() && predecessors.containsKey(path.peekFirst()) || path.size() == 1) {
+        if (!path.isEmpty() && (predecessors.containsKey(path.peekFirst()) || path.size() == 1) ) {
              return path;
         }
         //This means the end node was specified as start node or no path.
-        if (path.size() == 1 && !predecessors.containsKey(path.peekFirst())) {
-            // If it's just the start node, it means the path is just the start node itself.
-            // or if the endStreetName was the startStreetName
-            return path;
-        }
+        // This check was problematic, simplified: if path.size() == 1, it means start=end, or end is unreachable but was the start.
+        // The check `predecessors.containsKey(path.peekFirst())` is true if path has > 1 elements and first element has a predecessor.
+        // If path.size() == 1, it means only endStreetName is in path. If it's also the start, pred will be empty.
+        // The initial `if` handles this: if path has one element (start=end), `predecessors.containsKey(path.peekFirst())` is false,
+        // but `path.size() == 1` is true, so it returns. This is correct.
 
         return Collections.emptyList(); // Path could not be reconstructed to the implicit start
     }

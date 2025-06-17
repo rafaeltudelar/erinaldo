@@ -1,6 +1,6 @@
 package com.rotainteligente.datastructures;
 
-import com.rotainteligente.model.PathNode;
+import com.rotainteligente.model.PathNode; // Corrected import path
 import java.util.PriorityQueue;
 
 public class MinHeapPriorityQueue {

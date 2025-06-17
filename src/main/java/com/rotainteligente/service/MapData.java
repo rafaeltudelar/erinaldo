@@ -1,4 +1,4 @@
-package com.rotainteligente.core;
+package com.rotainteligente.service;
 
 import java.util.Arrays;
 import java.util.HashMap;
