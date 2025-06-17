@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Rota Facilitada (Python/Flask)</title>
+    <!-- The path to style.css is now relative to where index.html is served from -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>A Rota Facilitada</h1>
+        <p>Sistema inteligente de otimização de rotas (Versão Python/Flask).</p>
+
+        <div class="route-finder">
+            <div class="input-group">
+                <label for="origin">Origem:</label>
+                <input type="text" id="origin" name="origin" placeholder="Ex: Rua A">
+            </div>
+            <div class="input-group">
+                <label for="destination">Destino:</label>
+                <input type="text" id="destination" name="destination" placeholder="Ex: Rua F">
+            </div>
+            <button id="findRouteBtn">Encontrar Melhor Rota</button>
+        </div>
+
+        <div class="results">
+            <h2>Rota Sugerida:</h2>
+            <div id="route-output-container">
+                <p id="route-output">Aguardando cálculo da rota...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('findRouteBtn').addEventListener('click', function() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const routeOutput = document.getElementById('route-output');
+
+            routeOutput.textContent = 'Calculando...';
+            routeOutput.className = ''; // Reset class
+
+            if (!origin || !destination) {
+                routeOutput.textContent = 'Por favor, preencha os campos de origem e destino.';
+                routeOutput.className = 'error-message';
+                return;
+            }
+
+            // Construct the URL for the API call (relative to current host)
+            const apiUrl = `/api/route?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        // Try to parse error message if backend sends one
+                        return response.json().then(errorData => {
+                            // Flask jsonify({"error": ...}) will be an object
+                            throw new Error(errorData.error || `Erro na requisição: ${response.statusText}`);
+                        }).catch(() => { // Catch if errorData is not JSON or other parsing error
+                            throw new Error(`Erro na requisição: ${response.status} ${response.statusText}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        routeOutput.textContent = data.join(' -> ');
+                        routeOutput.className = '';
+                    } else if (data && Array.isArray(data) && data.length === 0) {
+                        routeOutput.textContent = 'Nenhuma rota encontrada.';
+                        routeOutput.className = 'error-message';
+                    }
+                     else { // Should not happen if backend sends [] for no route or {"error":...} for errors
+                        routeOutput.textContent = 'Resposta inesperada do servidor.';
+                        routeOutput.className = 'error-message';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar rota:', error);
+                    routeOutput.textContent = `Erro ao buscar rota: ${error.message}`;
+                    routeOutput.className = 'error-message';
+                });
+        });
+    </script>
+</body>
+</html>
