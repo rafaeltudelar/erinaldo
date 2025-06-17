@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Rota Facilitada</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>A Rota Facilitada</h1>
+        <p>Seu sistema inteligente de otimização de rotas.</p>
+
+        <div class="route-finder">
+            <div class="input-group">
+                <label for="origin">Origem:</label>
+                <input type="text" id="origin" name="origin" placeholder="Digite o nome da rua de origem">
+            </div>
+            <div class="input-group">
+                <label for="destination">Destino:</label>
+                <input type="text" id="destination" name="destination" placeholder="Digite o nome da rua de destino">
+            </div>
+            <button id="findRouteBtn">Encontrar Melhor Rota</button>
+        </div>
+
+        <div class="results">
+            <h2>Rota Sugerida:</h2>
+            <p id="route-output">Aguardando cálculo da rota...</p>
+            <p><strong>Tempo Estimado:</strong> <span id="time-output">-</span></p>
+            <p><strong>Nível de Congestionamento Geral:</strong> <span id="congestion-output">-</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Basic script for frontend interaction simulation
+        document.getElementById('findRouteBtn').addEventListener('click', function() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const routeOutput = document.getElementById('route-output');
+            const timeOutput = document.getElementById('time-output');
+            const congestionOutput = document.getElementById('congestion-output');
+
+            routeOutput.textContent = 'Calculando...';
+            timeOutput.textContent = '-';
+            congestionOutput.textContent = '-';
+
+            if (!origin || !destination) {
+                routeOutput.textContent = 'Por favor, preencha os campos de origem e destino.';
+                return;
+            }
+
+            // Simulate a delay and a mock response
+            setTimeout(() => {
+                // This is where you would typically make a call to the Java backend.
+                // For now, we'll just simulate a response.
+                const mockPath = [origin, "Rua Intermediaria X", "Rua Intermediaria Y", destination];
+                routeOutput.textContent = mockPath.join(' -> ');
+                timeOutput.textContent = '15 minutos';
+                congestionOutput.textContent = 'Moderado';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
